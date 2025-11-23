@@ -69,6 +69,12 @@ fun LoginScreen(
             Text("Sign In")
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TextButton(onClick = { navController.navigate("register") }) {
+            Text("Don't have an account? Register")
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         when (val state = uiState) {

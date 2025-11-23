@@ -25,7 +25,7 @@ class PairingRepository {
                     trySend(Result.failure(Exception("Code not valid or expired.")))
                     return
                 }
-                val data = snapshot.getValue<PairingCodeData>()
+                val data = snapshot.getValue(PairingCodeData::class.java)
                 if (data == null) {
                     trySend(Result.failure(Exception("Failed to parse pairing data.")))
                 } else {
@@ -46,13 +46,19 @@ class PairingRepository {
             .setValue("app_verified_waiting_for_card").await()
     }
 
-    fun listenForRfidUid(code: String): Flow<String> = callbackFlow {
-        val rfidUidRef = database.getReference("pairing_codes").child(code).child("rfid_uid")
+    fun listenForPairingCompletion(code: String): Flow<String> = callbackFlow {
+        val pairingRef = database.getReference("pairing_codes").child(code)
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                snapshot.getValue<String>()?.let {
-                    trySend(it)
-                    close()
+                val status = snapshot.child("status").getValue(String::class.java)
+                if (status == "completed") {
+                    val rfidUid = snapshot.child("rfid_uid").getValue(String::class.java)
+                    if (rfidUid != null) {
+                        trySend(rfidUid)
+                        close() // Stop listening
+                    } else {
+                        close(IllegalStateException("Pairing completed but RFID UID is null."))
+                    }
                 }
             }
 
@@ -60,25 +66,23 @@ class PairingRepository {
                 close(error.toException())
             }
         }
-        rfidUidRef.addValueEventListener(listener)
-        awaitClose { rfidUidRef.removeEventListener(listener) }
+        pairingRef.addValueEventListener(listener)
+        awaitClose { pairingRef.removeEventListener(listener) }
     }
 
-    suspend fun finalizeBinding(rfidUid: String, childName: String, code: String) {
-        val parentUid = auth.currentUser?.uid ?: throw IllegalStateException("User not logged in")
+    suspend fun finalizeBinding(rfidUid: String, childName: String, parentUid: String) {
         val formattedRfidUid = rfidUid.replace(" ", "").uppercase()
         val childId = UUID.randomUUID().toString()
         val child = Child(name = childName, rfidUid = formattedRfidUid)
 
-        // 1. Create child data entry
-        database.getReference("users").child(parentUid).child("children").child(childId)
-            .setValue(child).await()
+        val updates = mutableMapOf<String, Any?>()
+        updates["/users/$parentUid/children/$childId"] = child
+        updates["/rfid_to_parent_mapping/$formattedRfidUid"] = parentUid
 
-        // 2. Create mapping
-        database.getReference("rfid_to_parent_mapping").child(formattedRfidUid)
-            .setValue(parentUid).await()
+        database.reference.updateChildren(updates).await()
+    }
 
-        // 3. Clean up
+    suspend fun cleanupPairingNode(code: String) {
         database.getReference("pairing_codes").child(code).removeValue().await()
     }
 }

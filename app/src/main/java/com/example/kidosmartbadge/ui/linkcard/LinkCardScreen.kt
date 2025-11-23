@@ -79,7 +79,13 @@ fun LinkCardScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("The card for $childName has been successfully linked.", textAlign = TextAlign.Center)
                     Spacer(modifier = Modifier.height(24.dp))
-                    Button(onClick = { navController.popBackStack("home", false) }) {
+                    Button(onClick = {
+                        navController.navigate("home_root") {
+                            popUpTo("home_root") {
+                                inclusive = true
+                            }
+                        }
+                    }) {
                         Text("Done")
                     }
                 }
