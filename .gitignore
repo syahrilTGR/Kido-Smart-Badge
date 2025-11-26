@@ -11,3 +11,4 @@ local.properties
 keystore.properties
 release-key.jks
 /.run/
+app/google-services.json

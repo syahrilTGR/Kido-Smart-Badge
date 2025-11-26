@@ -34,53 +34,58 @@ fun LoginScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Text("Kido Smart Badge", style = MaterialTheme.typography.headlineLarge)
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { viewModel.onEmailChange(it) },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = password,
-            onValueChange = { viewModel.onPasswordChange(it) },
-            label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { viewModel.signIn() },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = uiState !is LoginUiState.Loading
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Sign In")
-        }
+            Text("Kido Smart Badge", style = MaterialTheme.typography.headlineLarge)
+            Spacer(modifier = Modifier.height(32.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = email,
+                onValueChange = { viewModel.onEmailChange(it) },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = password,
+                onValueChange = { viewModel.onPasswordChange(it) },
+                label = { Text("Password") },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = { navController.navigate("register") }) {
-            Text("Don't have an account? Register")
-        }
+            Button(
+                onClick = { viewModel.signIn() },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = uiState !is LoginUiState.Loading
+            ) {
+                Text("Sign In")
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        when (val state = uiState) {
-            is LoginUiState.Loading -> CircularProgressIndicator()
-            is LoginUiState.Error -> Text(text = state.message, color = Color.Red)
-            else -> {}
+            TextButton(onClick = { navController.navigate("register") }) {
+                Text("Don't have an account? Register")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            when (val state = uiState) {
+                is LoginUiState.Loading -> CircularProgressIndicator()
+                is LoginUiState.Error -> Text(text = state.message, color = Color.Red)
+                else -> {}
+            }
         }
     }
 }
