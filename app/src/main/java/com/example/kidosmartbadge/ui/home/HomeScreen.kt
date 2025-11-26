@@ -121,9 +121,19 @@ fun MentorView(viewModel: HomeViewModel) {
     }
 
     val allChildren by viewModel.allChildren.collectAsState()
-    var expanded by remember { mutableStateOf(false) }
+    var childExpanded by remember { mutableStateOf(false) }
     var selectedChild by remember { mutableStateOf<Child?>(null) }
-    var projectName by remember { mutableStateOf("") }
+
+    val modules = listOf(
+        "robot penjat tali", "robot walking", "mini tank", "triangle robot", "robot pendorong",
+        "robot menabung", "robot singa", "robot gundam", "robot komodo", "spider robot",
+        "basic electronic - LED", "basic electronic - Button", "basic electronic - BUZZER",
+        "basic electronic - LDR", "basic electronic - Transistor", "Lift", "arm robot",
+        "robot pembersih pemutar", "mesin cuci", "Drone"
+    )
+    var moduleExpanded by remember { mutableStateOf(false) }
+    var selectedModule by remember { mutableStateOf<String?>(null) }
+
     val uiState by viewModel.uiState.collectAsState()
 
     Column(
@@ -135,30 +145,30 @@ fun MentorView(viewModel: HomeViewModel) {
 
         // Dropdown for selecting a child
         ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
-            modifier = Modifier.fillMaxWidth() // Ensure it takes full width
+            expanded = childExpanded,
+            onExpandedChange = { childExpanded = !childExpanded },
+            modifier = Modifier.fillMaxWidth()
         ) {
             OutlinedTextField(
                 value = selectedChild?.name ?: "Select a Child",
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Child") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = childExpanded) },
                 modifier = Modifier
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, true) // Updated usage
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
                     .fillMaxWidth()
             )
             ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
+                expanded = childExpanded,
+                onDismissRequest = { childExpanded = false }
             ) {
                 allChildren.forEach { child ->
                     DropdownMenuItem(
                         text = { Text(child.name) },
                         onClick = {
                             selectedChild = child
-                            expanded = false
+                            childExpanded = false
                         }
                     )
                 }
@@ -166,20 +176,49 @@ fun MentorView(viewModel: HomeViewModel) {
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = projectName,
-            onValueChange = { projectName = it },
-            label = { Text("Project Name") },
+
+        // Dropdown for selecting a module
+        ExposedDropdownMenuBox(
+            expanded = moduleExpanded,
+            onExpandedChange = { moduleExpanded = !moduleExpanded },
             modifier = Modifier.fillMaxWidth()
-        )
+        ) {
+            OutlinedTextField(
+                value = selectedModule ?: "Select a Module",
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Module") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = moduleExpanded) },
+                modifier = Modifier
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                    .fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = moduleExpanded,
+                onDismissRequest = { moduleExpanded = false }
+            ) {
+                modules.forEach { module ->
+                    DropdownMenuItem(
+                        text = { Text(module) },
+                        onClick = {
+                            selectedModule = module
+                            moduleExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                selectedChild?.let {
-                    viewModel.approveProject(it.rfidUid, projectName)
+                selectedChild?.let { child ->
+                    selectedModule?.let { module ->
+                        viewModel.approveProject(child.rfidUid, module)
+                    }
                 }
             },
-            enabled = selectedChild != null && projectName.isNotBlank()
+            enabled = selectedChild != null && selectedModule != null
         ) {
             Text("Approve")
         }
