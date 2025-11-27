@@ -12,35 +12,40 @@ import androidx.navigation.NavController
 fun AddChildScreen(navController: NavController) {
     var childName by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Text(
-            text = "Add a New Child",
-            style = MaterialTheme.typography.headlineSmall
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        OutlinedTextField(
-            value = childName,
-            onValueChange = { childName = it },
-            label = { Text("Child's Nickname") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = {
-                if (childName.isNotBlank()) {
-                    navController.navigate("link_card/$childName")
-                }
-            },
-            enabled = childName.isNotBlank()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Next")
+            Text(
+                text = "Add a New Child",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            OutlinedTextField(
+                value = childName,
+                onValueChange = { childName = it },
+                label = { Text("Child's Nickname") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    if (childName.isNotBlank()) {
+                        navController.navigate("link_card/$childName")
+                    }
+                },
+                enabled = childName.isNotBlank()
+            ) {
+                Text("Next")
+            }
         }
     }
 }

@@ -12,3 +12,4 @@ keystore.properties
 release-key.jks
 /.run/
 app/google-services.json
+db_structure_recovery.json

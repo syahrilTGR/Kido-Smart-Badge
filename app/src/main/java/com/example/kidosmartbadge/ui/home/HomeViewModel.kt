@@ -34,6 +34,27 @@ class HomeViewModel : ViewModel() {
     private val _allChildren = MutableStateFlow<List<Child>>(emptyList())
     val allChildren: StateFlow<List<Child>> = _allChildren
 
+    private val _modules = MutableStateFlow<List<String>>(emptyList())
+    val modules: StateFlow<List<String>> = _modules
+
+    init {
+        fetchModules()
+    }
+
+    fun fetchModules() {
+        val modulesRef = database.getReference("modules")
+        modulesRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val moduleList = snapshot.getValue<List<String>>() ?: emptyList()
+                _modules.value = moduleList
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                _uiState.value = HomeUiState.Error("Failed to fetch modules: ${error.message}")
+            }
+        })
+    }
+
     fun fetchChildren() {
         val userId = auth.currentUser?.uid ?: return
         val childrenRef = database.getReference("users").child(userId).child("children")

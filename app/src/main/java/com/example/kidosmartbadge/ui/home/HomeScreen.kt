@@ -124,13 +124,7 @@ fun MentorView(viewModel: HomeViewModel) {
     var childExpanded by remember { mutableStateOf(false) }
     var selectedChild by remember { mutableStateOf<Child?>(null) }
 
-    val modules = listOf(
-        "robot penjat tali", "robot walking", "mini tank", "triangle robot", "robot pendorong",
-        "robot menabung", "robot singa", "robot gundam", "robot komodo", "spider robot",
-        "basic electronic - LED", "basic electronic - Button", "basic electronic - BUZZER",
-        "basic electronic - LDR", "basic electronic - Transistor", "Lift", "arm robot",
-        "robot pembersih pemutar", "mesin cuci", "Drone"
-    )
+    val modules by viewModel.modules.collectAsState() // Collect modules from ViewModel
     var moduleExpanded by remember { mutableStateOf(false) }
     var selectedModule by remember { mutableStateOf<String?>(null) }
 
