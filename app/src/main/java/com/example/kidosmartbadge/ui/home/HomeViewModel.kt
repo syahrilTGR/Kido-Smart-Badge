@@ -37,8 +37,33 @@ class HomeViewModel : ViewModel() {
     private val _modules = MutableStateFlow<List<String>>(emptyList())
     val modules: StateFlow<List<String>> = _modules
 
+    private val _pendingApprovals = MutableStateFlow<Map<String, String>>(emptyMap())
+    val pendingApprovals: StateFlow<Map<String, String>> = _pendingApprovals
+
     init {
         fetchModules()
+        fetchPendingApprovals()
+    }
+
+    private fun fetchPendingApprovals() {
+        val pendingRef = database.getReference("approval_pending")
+        pendingRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val pendingMap = mutableMapOf<String, String>()
+                snapshot.children.forEach { childSnapshot ->
+                    val uid = childSnapshot.key
+                    val projectName = childSnapshot.getValue(String::class.java)
+                    if (uid != null && projectName != null) {
+                        pendingMap[uid] = projectName
+                    }
+                }
+                _pendingApprovals.value = pendingMap
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                _uiState.value = HomeUiState.Error("Failed to fetch pending approvals: ${error.message}")
+            }
+        })
     }
 
     fun fetchModules() {

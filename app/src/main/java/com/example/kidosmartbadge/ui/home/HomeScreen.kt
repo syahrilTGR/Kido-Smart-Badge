@@ -129,6 +129,7 @@ fun MentorView(viewModel: HomeViewModel) {
     var selectedModule by remember { mutableStateOf<String?>(null) }
 
     val uiState by viewModel.uiState.collectAsState()
+    val pendingApprovals by viewModel.pendingApprovals.collectAsState()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -222,6 +223,29 @@ fun MentorView(viewModel: HomeViewModel) {
             is HomeUiState.Success -> Text(text = state.message, color = Color.Green)
             is HomeUiState.Error -> Text(text = state.message, color = Color.Red)
             else -> {}
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Pending Approvals Section
+        Text("Pending Approvals", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            if (pendingApprovals.isEmpty()) {
+                item {
+                    Text(
+                        text = "No pending approvals.",
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+            } else {
+                items(pendingApprovals.toList()) { (uid, projectName) ->
+                    ListItem(
+                        headlineContent = { Text(projectName) },
+                        supportingContent = { Text("Card UID: $uid") }
+                    )
+                }
+            }
         }
     }
 }
