@@ -12,4 +12,7 @@ keystore.properties
 release-key.jks
 /.run/
 app/google-services.json
+USER_MANUAL_AND_PROMPTS.md
+User_Manual_Kido_Smart_Badge.md
+app/VideoDraft.kt
 db_structure_recovery.json
